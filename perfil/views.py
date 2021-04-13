@@ -1,3 +1,19 @@
-from django.shortcuts import render
+from django.http import HttpResponse
+from django.views.generic import View
 
-# Create your views here.
+
+class Criar(View):
+    def get(self, *args, **kwargs):
+        return HttpResponse('Criar')
+
+
+class Atualizar(View):
+    pass
+
+
+class Login(View):
+    pass
+
+
+class Logout(View):
+    pass
