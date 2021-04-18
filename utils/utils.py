@@ -15,3 +15,4 @@ def total_qtd(cart):
         for item
         in cart.values()
     ])
+    
