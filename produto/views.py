@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.http import HttpResponse
 from . import models
 from django.urls import reverse
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 
 
 class ListaProdutos(ListView):
@@ -115,7 +115,12 @@ class RemoverDoCarrinho(View):
 
 
 class Carrinho(View):
-    pass
+    def get(self, *args, **kwargs):
+        contexto = {
+            'carrinho': self.request.session.get('carrinho', {})
+        }
+
+        return render(self.request, 'produto/carrinho.html', contexto)
 
 
 class ResumoDaCompra(View):
