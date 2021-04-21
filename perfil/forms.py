@@ -1,13 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from . import models
-
-
-class PerfilForm(forms.ModelForm):
-    class Meta:
-        model = models.Perfil
-        field = '__all__'
-        exclude = ('usuario', )
+from django.core.exceptions import ValidationError
 
 
 class UserForm(forms.ModelForm):
@@ -16,15 +9,12 @@ class UserForm(forms.ModelForm):
         widget=forms.PasswordInput(),
         label='Senha'
     )
+
     password2 = forms.CharField(
         required=False,
         widget=forms.PasswordInput(),
-        label='Confirmação Senha'
+        label='Confirmação senha'
     )
-
-    def __init__(self, usuario=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.usuario = usuario
 
     class Meta:
         model = User
@@ -32,9 +22,17 @@ class UserForm(forms.ModelForm):
             'first_name', 'last_name', 'username', 'password',
             'password2', 'email'
         )
+
+    def __init__(self, usuario=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # received from context
+        self.usuario = usuario
     
     def clean(self, *args, **kwargs):
+        # received from context
         data = self.data
+        
         cleaned = self.cleaned_data
         validation_error_msgs = {}
 
@@ -43,6 +41,7 @@ class UserForm(forms.ModelForm):
         password_data = cleaned.get('password')
         password2_data = cleaned.get('password2')
 
+        # query db to see if the usuario_data is on db
         usuario_db = User.objects.filter(username=usuario_data).first()
         email_db = User.objects.filter(email=email_data).first()
 
@@ -80,3 +79,4 @@ class UserForm(forms.ModelForm):
         # it raises all error msgs at once
         if validation_error_msgs:
             raise(forms.ValidationError(validation_error_msgs))
+
