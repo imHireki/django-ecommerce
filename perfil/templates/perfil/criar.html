@@ -1,23 +1,30 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+
 {% block conteudo %}
 <div class="row">
-    <div class="col-lg">
-        <h3>Login</h3>
-    </div>
-    <div class="col-lg">
-        <h3>Cadastro</h3>
-        <form action="" method="post">{% csrf_token %}
-            {{ userform|crispy }}
+{% if not request.user.is_authenticated %}
+<div class="col-lg mt-3">
+    <h4>Login</h4>
+    <p>Se você já fez cadastro, basta entrar com seu usuário e senha abaixo:</p>
+</div>
+{% endif %}
+    <div class="col-lg mt-3">
+        {% block titulocadastro %}
+        <h4>Cadastro</h4>
+        <p>Caso ainda não tenha cadastro, utiliza o formulário a seguir para se cadastrar:</p>
+        {% endblock %}
+        <form method="POST" action="">{% csrf_token %}
+        {% csrf_token %}
+        {{ userform|crispy }}
             <div class="row">
                 <div class="col">
-                    <button type="submit"
-                     class='btn btn-primary btn-lg btn-block'>Submit</button>
+                    <button type="submit" class="btn btn-primary  btn-block btn-lg">
+                        Enviar
+                    </button>
                 </div>
             </div>
         </form>
-
     </div>
 </div>
-
 {% endblock %}

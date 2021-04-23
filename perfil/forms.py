@@ -1,6 +1,14 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from . import models
+
+
+class PerfilForm(forms.ModelForm):
+    class Meta:
+        model = models.Perfil
+        field = '__all__'
+        exclude = ('usuario', )
 
 
 class UserForm(forms.ModelForm):
@@ -9,74 +17,55 @@ class UserForm(forms.ModelForm):
         widget=forms.PasswordInput(),
         label='Senha'
     )
-
+    
     password2 = forms.CharField(
         required=False,
         widget=forms.PasswordInput(),
-        label='Confirmação senha'
+        label='Confirmação Senha'
     )
-
+    
     class Meta:
         model = User
         fields = (
-            'first_name', 'last_name', 'username', 'password',
-            'password2', 'email'
+            'first_name', 'last_name', 'username',
+            'password', 'password2', 'email'
         )
-
+    
     def __init__(self, usuario=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # received from context
         self.usuario = usuario
     
     def clean(self, *args, **kwargs):
-        # received from context
         data = self.data
-        
         cleaned = self.cleaned_data
         validation_error_msgs = {}
-
+        
         usuario_data = cleaned.get('username')
         email_data = cleaned.get('email')
-        password_data = cleaned.get('password')
-        password2_data = cleaned.get('password2')
+        password = cleaned.get('password')
+        password2 = cleaned.get('password2')
 
-        # query db to see if the usuario_data is on db
         usuario_db = User.objects.filter(username=usuario_data).first()
         email_db = User.objects.filter(email=email_data).first()
-
-        error_msg_user_exists = 'Usuário já existe'
-        error_msg_email_exists = 'E-mail já existe'
-        error_msg_password_match = 'As duas senhas não conferem'
-        error_msg_password_short = 'Sua senha precisa de pelo menos 6 caracteres'
-        error_msg_required_field = 'Este campo é obrigatório'
-
-        #  user logged in
+        
         if self.usuario:
-
-            # error if a logged user is trying to define a username that already is on db
-            if usuario_db: # if any profile exists with the sent username
-                if self.usuario.username != usuario_db.username: # if logged username != queried username
-                    validation_error_msgs['username'] =  error_msg_user_exists
-
-            # error if a logged user is trying to define a email that already is on db
-            if email_db: # if any profile exists with the sent username
-                if self.usuario.email != email_db.email: # if logged user's email != queried email
-                    validation_error_msgs['email'] = error_msg_email_exists
-
-            if password_data:
-                if password_data != password2_data:
-                    validation_error_msgs['password'] = error_msg_password_match
-                    validation_error_msgs['password2'] = error_msg_password_match
+            if usuario_db:
+                if self.usuario.username != usuario_db.username:
+                    validation_error_msgs['username'] = 'usuário já existe'
             
-                if len(password_data) < 6:
-                    validation_error_msgs['password'] =  error_msg_password_short
+            if email_db:
+                if self.usuario.email != email_db.email:
+                    validation_error_msgs['email'] = 'email já existe'
+            
+            if password:
+                if password != password2:
+                    validation_error_msgs['password'] = 'senhas não correspondem'
+                    validation_error_msgs['password2'] = 'senhas não correspondem'
 
-        # user not logged in
+                if len(password) < 6:
+                    validation_error_msgs['password'] = 'Senha curta'
         else:
             pass
-        
-        # it raises all error msgs at once
-        if validation_error_msgs:
-            raise(forms.ValidationError(validation_error_msgs))
 
+        if validation_error_msgs:
+            raise ValidationError(validation_error_msgs)
