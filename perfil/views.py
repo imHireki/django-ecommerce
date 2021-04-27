@@ -3,29 +3,53 @@ from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
-from . import forms 
+from . import forms, models
 import copy
 
 
 class BasePerfil(View):
     template_name = 'perfil/criar.html'
-    
+
     def setup(self, *args, **kwargs):
         super().setup(*args, **kwargs)
-
+        
         self.carrinho = copy.deepcopy(
             self.request.session.get('carrinho'), {}
         )
         
-        self.contexto = {
-            'userform': forms.UserForm(
-                data=self.request.POST or None,
-                instance=self.request.user,
+        self.perfil = None
+        
+        if self.request.user.is_authenticated:
+            self.template_name = 'perfil/atualizar.html'
+            
+            self.perfil = models.Perfil.objects.filter(
                 usuario=self.request.user
-            ),
-        }
+            ).first()
+            
+            self.contexto = {
+                'userform': forms.UserForm(
+                    usuario=self.request.user,
+                    instance=self.request.user,
+                    data=self.request.POST or None,
+                ),
+                'perfilform': forms.PerfilForm(
+                    data=self.request.POST or None,
+                    instance=self.perfil
+                )
+            }
+        
+        else:
+            self.contexto = {
+                'userform': forms.UserForm(
+                    data=self.request.POST or None,
+                ),
+                'perfilform': forms.PerfilForm(
+                    data=self.request.POST or None,
+                )
+            }
 
         self.userform = self.contexto['userform']
+        self.perfilform = self.contexto['perfilform']
         
         self.renderizar = render(
             self.request, self.template_name, self.contexto
@@ -37,52 +61,50 @@ class BasePerfil(View):
 
 class Criar(BasePerfil):
     def post(self, *args, **kwargs):
+        if not self.userform.is_valid() or not self.perfilform.is_valid():
+            pass
         
-        if not self.userform.is_valid():
-            messages.error(
-                self.request, 'algo de errado não está certo'
-            )
-            return self.renderizar
-
         username = self.userform.cleaned_data.get('username')
         email = self.userform.cleaned_data.get('email')
         password = self.userform.cleaned_data.get('password')
         first_name = self.userform.cleaned_data.get('first_name')
         last_name = self.userform.cleaned_data.get('last_name')
-
-        # update
+        
         if self.request.user.is_authenticated:
 
-            usuario = User.objects.filter( # get object or 404
-                username=self.request.user.username
-            ).first()
-            
+            usuario = User.objects.filter(username=username).first()
             usuario.username = username
             usuario.email = email
             usuario.first_name = first_name
             usuario.last_name = last_name
             if password:
                 usuario.set_password(password)
-
             usuario.save()
 
-        # create 
+            if self.perfil:
+                perfil = self.perfilform.save(commit=False)
+                perfil.usuario = usuario
+                perfil.save()
+            else:
+                self.perfilform.cleaned_data['usuario'] = usuario
+                perfil = models.Perfil(**self.perfilform.cleaned_data)
+                perfil.save()
+
         else:
-            pass
-
-        if password:
-            autentica = authenticate(
-                username=username,
-                password=password
-            )
-
-            if autentica:
-                login(self.request, usuario)
+            usuario = self.userform.save()
+            usuario.set_password(password)
+            usuario.save()
+        
+        autentica = authenticate(
+            username=usuario.username,
+            password=password
+        )
+        if autentica:
+            login(self.request, user=usuario)
 
         self.request.session['carrinho'] = self.carrinho
         self.request.session.save()
         return self.renderizar
-
 
 class Atualizar(View):
     pass
