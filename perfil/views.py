@@ -1,5 +1,5 @@
 from django.views.generic import View
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
@@ -62,7 +62,13 @@ class BasePerfil(View):
 class Criar(BasePerfil):
     def post(self, *args, **kwargs):
         if not self.userform.is_valid() or not self.perfilform.is_valid():
-            pass
+            messages.error(
+                self.request,
+                'Existem erros no formulário de cadastro. Verifique se todos '
+                'os campos foram preenchidos corretamente.'
+            )
+
+            return self.renderizar
         
         username = self.userform.cleaned_data.get('username')
         email = self.userform.cleaned_data.get('email')
@@ -74,9 +80,9 @@ class Criar(BasePerfil):
 
             usuario = User.objects.filter(username=username).first()
             usuario.username = username
-            usuario.email = email
             usuario.first_name = first_name
             usuario.last_name = last_name
+            usuario.email = email
             if password:
                 usuario.set_password(password)
             usuario.save()
@@ -91,20 +97,33 @@ class Criar(BasePerfil):
                 perfil.save()
 
         else:
-            usuario = self.userform.save()
+            usuario = self.userform.save(commit=False)
             usuario.set_password(password)
             usuario.save()
-        
+
         autentica = authenticate(
-            username=usuario.username,
-            password=password
+            self.request, usuario=username, password=password
         )
         if autentica:
-            login(self.request, user=usuario)
+            login(
+                self.request, user=usuario
+            )
 
         self.request.session['carrinho'] = self.carrinho
         self.request.session.save()
-        return self.renderizar
+        
+        messages.success(
+            self.request,
+            'Seu cadastro foi criado ou atualizado com sucesso.'
+        )
+
+        messages.success(
+            self.request,
+            'Você fez login e pode concluir sua compra.'
+        )
+
+        return redirect('produto:carrinho')
+
 
 class Atualizar(View):
     pass
