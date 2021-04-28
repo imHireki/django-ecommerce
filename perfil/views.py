@@ -173,4 +173,14 @@ class Login(View):
 
 
 class Logout(View):
-    pass
+    def get(self, *args, **kwargs):
+        # cart disappear, when logout is called | get to return none if no cart
+        carrinho = copy.deepcopy(self.request.session.get('carrinho'))
+
+        logout(self.request)
+
+        # recover the cart
+        self.request.session['carrinho'] = carrinho
+        self.request.session.save()
+
+        return redirect('produto:lista')
