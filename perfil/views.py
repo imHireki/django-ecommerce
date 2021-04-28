@@ -101,6 +101,11 @@ class Criar(BasePerfil):
             usuario.set_password(password)
             usuario.save()
 
+            perfil = self.perfilform.save(commit=False)
+            # perfil object unlike of perfilform, it HAS usuario attribute
+            perfil.usuario = usuario
+            perfil.save()
+
         autentica = authenticate(
             self.request, usuario=username, password=password
         )
