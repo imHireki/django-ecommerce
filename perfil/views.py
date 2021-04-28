@@ -2,7 +2,7 @@ from django.views.generic import View
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from . import forms, models
 import copy
 
@@ -135,7 +135,41 @@ class Atualizar(View):
 
 
 class Login(View):
-    pass
+    # it just can be called by form(POST) way
+    def post(self, *args, **kwargs):
+        # Get values from perfil/criar.html
+        username = self.request.POST.get('username')
+        password = self.request.POST.get('password')
+
+        # if those two were not sent
+        if not username or not password:
+            messages.error(
+                self.request,
+                'Usuário ou senha inválidos'
+            )
+            return redirect('perfil:criar')
+        
+        # return user or None
+        usuario = authenticate(
+            self.request, username=username, password=password
+        )
+        
+        # if the authenticate sends None
+        if not usuario:
+            messages.error(
+                self.request,
+                'Usuário ou senha inválidos'
+            )
+            return redirect('perfil:criar')
+
+        # login the user get from authenticate
+        login(self.request, user=usuario)
+
+        messages.success(
+            self.request,
+            'Você fez login no sistema e pode concluir sua compra.'
+        )
+        return redirect('produto:carrinho')
 
 
 class Logout(View):

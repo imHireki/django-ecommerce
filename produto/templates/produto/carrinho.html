@@ -15,7 +15,7 @@
           <th>QTD.</th>
           <th>Total</th>
         </tr>
-
+{% if carrinho %}
         {% for linha in carrinho.values %}
         <tr>
           <td class="d-none d-lg-block">
@@ -77,4 +77,5 @@
     </a>
   </div>
 </div>
+{% endif %}
 {% endblock %}
