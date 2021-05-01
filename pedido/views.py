@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.views.generic import View
+from django.views.generic import View, DetailView
 from produto.models import Variacao
 from django.contrib import messages
 from django.shortcuts import redirect
@@ -8,8 +8,11 @@ from utils import utils
 from .models import ItemPedido, Pedido
 
 
-class Pagar(View):
-    pass
+class Pagar(DetailView):
+    template_name = 'pedido/pagar.html'
+    model = Pedido
+    pk_url_kwarg = 'pk'
+    context_object_name = 'pedido'
 
 
 class SalvarPedido(View):
