@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.views.generic import View, DetailView
+from django.views.generic import View, DetailView, ListView
 from produto.models import Variacao
 from django.contrib import messages
 from django.shortcuts import redirect
@@ -8,7 +8,34 @@ from utils import utils
 from .models import ItemPedido, Pedido
 
 
-class Pagar(DetailView):
+class DispatchLoginRequiredMixin(View):
+    def dispatch(self, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return redirect('perfil:criar')
+
+        return super().dispatch(*args, **kwargs)
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs)
+        qs = qs.filter(usuario=self.request.user)
+        return qs
+
+class Lista(DispatchLoginRequiredMixin, ListView):
+    template_name = 'pedido/lista.html'
+    model = Pedido
+    context_object_name = 'pedidos'
+    paginate_by = 10
+    orderig = ['-id']
+
+
+class Detalhe(DispatchLoginRequiredMixin, DetailView):
+    template_name = 'pedido/detalhe.html'
+    model = Pedido
+    context_object_name = 'pedido'
+    pk_url_kwarg = 'pk'
+
+
+class Pagar(DispatchLoginRequiredMixin, DetailView):
     template_name = 'pedido/pagar.html'
     model = Pedido
     pk_url_kwarg = 'pk'
@@ -133,7 +160,3 @@ class SalvarPedido(View):
                 kwargs={'pk': pedido.pk}
             )
         )
-
-
-class Detalhe(View):
-    pass
