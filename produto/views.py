@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from . import models
 from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Q
 
 
 class ListaProdutos(ListView):
@@ -12,6 +13,25 @@ class ListaProdutos(ListView):
     context_object_name = 'produtos'
     paginate_by = 3
 
+
+class Busca(ListaProdutos):
+    def get_queryset(self, *args, **kwargs):
+        termo = self.request.GET.get('termo') or self.request.session['termo']
+
+        qs = super().get_queryset(*args, **kwargs)
+        if not termo:
+            return qs
+        
+        self.request.session['termo'] = termo
+
+        qs = qs.filter(
+            Q(nome__icontains=termo) |
+            Q(descricao_curta__icontains=termo) |
+            Q(descricao_longa__icontains=termo)
+        )
+
+        self.request.session.save()
+        return qs
 
 class DetalheProduto(DetailView):
     model = models.Produto
