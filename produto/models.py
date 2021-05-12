@@ -1,6 +1,8 @@
 from django.db import models
-from PIL import Image
 from django.conf import settings
+from django.contrib import admin
+from utils import utils
+from PIL import Image
 import os
 
 
@@ -23,6 +25,14 @@ class Produto(models.Model):
         )
     )
 
+    @admin.display(description='Preço')
+    def preco_marketing_f(self):
+        return utils.formata_preco(self.preco_marketing)
+
+    @admin.display(description='Preço promocional')
+    def preco_marketing_promocional_f(self):
+        return utils.formata_preco(self.preco_marketing_promocional)
+    
     def __str__(self):
         return self.nome
 
@@ -32,7 +42,7 @@ class Produto(models.Model):
         image = Image.open(img_full_path)
         original_width, original_height = image.size
 
-        if original_width < new_width:
+        if original_width <= new_width:
             image.save(img_full_path)
 
         new_height = round((new_width * original_height) / original_width)
@@ -56,3 +66,11 @@ class Variacao(models.Model):
     preco = models.FloatField()
     preco_promocional = models.FloatField(default=0)
     estoque = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return self.nome or self.produto.nome
+    
+    class Meta:
+        verbose_name = 'Variação'
+        verbose_name_plural = 'Variações'
+        
