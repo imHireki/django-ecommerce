@@ -20,6 +20,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('', include('produto.urls')),
+    
     path('admin/', admin.site.urls),
 
     # TODO: tb remove debug toolbar

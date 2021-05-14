@@ -47,7 +47,7 @@ class Produto(models.Model):
             image.save(img_full_path)
 
         new_height = round((new_width * original_height) / original_width)
-        
+
         resize = image.resize((new_width, new_height), Image.LANCZOS)
 
         resize.save(img_full_path)
