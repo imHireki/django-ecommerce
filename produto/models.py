@@ -1,9 +1,10 @@
+import os
 from django.db import models
 from django.conf import settings
 from django.contrib import admin
-from utils import utils
+from django.utils.text import slugify
 from PIL import Image
-import os
+from utils import utils
 
 
 class Produto(models.Model):
@@ -53,7 +54,10 @@ class Produto(models.Model):
 
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)    
+        if not self.slug: self.slug = slugify(self.nome)
+
+        super().save(*args, **kwargs)
+        
         max_width = 800
 
         if self.imagem:
