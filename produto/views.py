@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.views.generic import View, ListView
+from django.views.generic import View, ListView, DetailView
 from . import models
 
 class ListaProdutos(ListView):
@@ -7,7 +7,12 @@ class ListaProdutos(ListView):
     context_object_name = 'produtos'
     template_name = 'produto/lista.html'
 
-class Detalhe(View): pass
+class Detalhe(DetailView):
+    model = models.Produto
+    context_object_name = 'produto'
+    slug_url_kwarg = 'slug'
+    template_name = 'produto/detalhe.html'
+    
 
 class AdicionarAoCarrinho(View): pass
 

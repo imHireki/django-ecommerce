@@ -6,7 +6,7 @@ app_name = 'produto'
 
 urlpatterns = [
     path('', views.ListaProdutos.as_view(), name='lista'),
-    path('<slug:slug>', views.Detalhe.as_view(), name='detalhe'),
+    path('<slug>', views.Detalhe.as_view(), name='detalhe'),
     path('adicionaraocarrinho/', views.AdicionarAoCarrinho.as_view(),
         name='adicionaraocarrinho'),
     path('removerdocarrinho/', views.RemoverDoCarrinho.as_view(),
