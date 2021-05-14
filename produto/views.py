@@ -1,11 +1,11 @@
 from django.shortcuts import render
-from django.http import HttpResponse
-from django.views.generic import View, TemplateView
+from django.views.generic import View, ListView
+from . import models
 
-
-class ListaProdutos(TemplateView):
+class ListaProdutos(ListView):
+    model = models.Produto
+    context_object_name = 'produtos'
     template_name = 'produto/lista.html'
-    
 
 class Detalhe(View): pass
 
