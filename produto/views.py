@@ -56,10 +56,7 @@ class AdicionarAoCarrinho(View):
             imagem = imagem.name    
 
         if vid in carrinho.keys():
-            
             quantidade = carrinho[vid]['quantidade'] + 1
-            print(estoque)
-            print(quantidade)
             if estoque < quantidade:
                 messages.warning(
                     self.request,
@@ -102,6 +99,19 @@ class AdicionarAoCarrinho(View):
 
 class RemoverDoCarrinho(View): pass
 
-class Carrinho(View): pass
+class Carrinho(View):
+    template_name = 'produto/carrinho.html'
+
+    def get(self, *args, **kwargs):
+        carrinho = self.request.session.get('carrinho')
+        
+        contexto = {
+            'carrinho': carrinho
+        }
+        
+        return render(
+            self.request, self.template_name, contexto
+        )
+    
 
 class ResumoDaCompra(View): pass
