@@ -11,6 +11,7 @@ class ListaProdutos(ListView):
     context_object_name = 'produtos'
     template_name = 'produto/lista.html'
 
+
 class Detalhe(DetailView):
     model = models.Produto
     context_object_name = 'produto'
@@ -128,4 +129,4 @@ class RemoverDoCarrinho(View):
 
         return redirect(http_referer)
 
-class ResumoDaCompra(View): pass
+class ResumoDaCompra(DetailView): pass

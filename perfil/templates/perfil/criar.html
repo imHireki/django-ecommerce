@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block conteudo %}
+<form action="{% url 'perfil:criar' %}" method="post">{% csrf_token %}
+	{{ userform|crispy }}
+	{{ perfilform|crispy}}
+	<div class="row">
+		<div class="col-lg">
+				<button type="submit" class="btn btn-primary btn-lg btn-block">
+					Submit
+				</button>
+		</div>
+	</div>
+</form>
+{% endblock %}  

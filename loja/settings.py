@@ -36,13 +36,13 @@ INSTALLED_APPS = [
     'produto',
     'pedido',
     'perfil',
+    'crispy_forms',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     # TODO: tb remove debug toolbar
     'debug_toolbar',
 ]
@@ -77,6 +77,7 @@ TEMPLATES = [
         },
     },
 ]
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 WSGI_APPLICATION = 'loja.wsgi.application'
 
