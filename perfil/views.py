@@ -4,13 +4,17 @@ from . import forms
 from .models import Perfil
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
+from copy import deepcopy
+from django.contrib import messages
 
 
 class BasePerfil(View):
-    template_name = 'perfil/criar.html'
+    template_name = 'perfil/atualizar.html'
 
     def setup(self, *args, **kwargs):
         super().setup(*args, **kwargs)
+
+        self.carrinho = deepcopy(self.request.session.get('carrinho'), {})
 
         self.perfil = None
 
@@ -18,7 +22,7 @@ class BasePerfil(View):
             self.perfil = Perfil.objects.filter(
                 usuario=self.request.user
             ).first()
-
+            
             self.contexto = {
                 'userform': forms.UserForm(
                     data=self.request.POST or None,
@@ -44,7 +48,7 @@ class BasePerfil(View):
 
         self.userform = self.contexto['userform']
         self.perfilform = self.contexto['perfilform']
-
+        
         self.renderizar = render(
             self.request, self.template_name, self.contexto
         )
@@ -55,14 +59,21 @@ class BasePerfil(View):
 
 class CriarAtualizar(BasePerfil):
     def post(self, *args, **kwargs):
-        username = self.userform.cleaned_data['username']
-        password = self.userform.cleaned_data['password']
-        email = self.userform.cleaned_data['email']
-        first_name = self.userform.cleaned_data['first_name']
-        last_name = self.userform.cleaned_data['last_name']
+        if not self.userform.is_valid() or self.perfilform.is_valid():
+            messages.error(
+                self.request, 
+                'O formulário contém dados inválidos'
+            )
+            return self.renderizar 
+
+        username = self.userform.cleaned_data.get('username')
+        password = self.userform.cleaned_data.get('password')
+        email = self.userform.cleaned_data.get('email')
+        first_name = self.userform.cleaned_data.get('first_name')
+        last_name = self.userform.cleaned_data.get('last_name')
         
         if self.request.user.is_authenticated:
-            usuario = User.objects.filter(username=username).first()
+            usuario = User.objects.filter(username=self.request.user).first()
 
             usuario.username = username
             usuario.set_password(password)
@@ -91,11 +102,13 @@ class CriarAtualizar(BasePerfil):
             perfil.save() 
             
         # if password:
-        authenticate(
+        authentic = authenticate(
             self.request, 
             username=username, password=password 
         )
-        if authenticate:
+        if authentic:
             login(self.request, user=usuario)
-        
+
+        self.request.session['carrinho'] = self.carrinho    
+        self.request.session.save()
         return self.renderizar

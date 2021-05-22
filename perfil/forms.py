@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import Perfil
 
+
 class PerfilForms(forms.ModelForm):
     class Meta:
         model = Perfil
@@ -31,16 +32,15 @@ class UserForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.usuario = usuario
         
-    
     def clean(self):
         data = self.data
         cleaned = self.cleaned_data
         validation_msgs = {}
 
-        username = cleaned['username']
-        email = cleaned['email']
-        password = cleaned['password']
-        password2 = cleaned['password2']
+        username = cleaned.get('username')
+        email = cleaned.get('email')
+        password = cleaned.get('password')
+        password2 = cleaned.get('password2')
 
         username_db = User.objects.filter(username=username).first()
         email_db = User.objects.filter(email=email).first()

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block conteudo %}
+<div class="row">
+
+	{% if not request.user.is_authenticated %}
+
+	<div class="col-lg">
+		<form>
+			<div class="form-group">
+				<label for="exampleInputEmail1">Usuário</label>
+				<input type="email" class="form-control" id="exampleInputEmail1" placeholder="Usuário">
+			</div>
+			<div class="form-group">
+				<label for="exampleInputPassword1">Senha</label>
+				<input type="password" class="form-control" id="exampleInputPassword1" placeholder="Senha">
+			</div>
+		</form>
+	</div>
+
+	{% endif %}
+
+	<div class="col-lg">
+		<form action="{% url 'perfil:criar' %}" method="post">{% csrf_token %}
+			{{ userform|crispy }}
+			{{ perfilform|crispy}}
+			<div class="row">
+				<div class="col-lg">
+					<button type="submit" class="btn btn-primary btn-lg btn-block">
+						Submit
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
+
+</div>
+{% endblock %}
