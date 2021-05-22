@@ -1,9 +1,11 @@
 from django import http
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import View, ListView, DetailView
 from . import models
 from django.contrib import messages
+from perfil.models import Perfil
 
 
 class ListaProdutos(ListView):
@@ -129,4 +131,15 @@ class RemoverDoCarrinho(View):
 
         return redirect(http_referer)
 
-class ResumoDaCompra(DetailView): pass
+
+class ResumoDaCompra(View):
+    def get(self, *args, **kwargs):
+        template_name = 'produto/resumo.html'
+
+        contexto = {
+            'usuario': self.request.user,
+            'carrinho': self.request.session.get('carrinho')
+        }
+        
+        return render(self.request, template_name, contexto)
+

@@ -59,13 +59,13 @@ class BasePerfil(View):
 
 class CriarAtualizar(BasePerfil):
     def post(self, *args, **kwargs):
-        if not self.userform.is_valid() or self.perfilform.is_valid():
+        if not self.userform.is_valid() or not self.perfilform.is_valid():
             messages.error(
                 self.request, 
                 'O formulário contém dados inválidos'
             )
-            return self.renderizar 
-
+            return redirect('perfil:criar')
+        
         username = self.userform.cleaned_data.get('username')
         password = self.userform.cleaned_data.get('password')
         email = self.userform.cleaned_data.get('email')
@@ -100,7 +100,11 @@ class CriarAtualizar(BasePerfil):
             self.perfilform.cleaned_data['usuario'] = usuario
             perfil = Perfil(**self.perfilform.cleaned_data)
             perfil.save() 
-            
+        
+        messages.success(
+            self.request,
+            'Alterações Salvas!'
+        )
         # if password:
         authentic = authenticate(
             self.request, 
@@ -111,4 +115,5 @@ class CriarAtualizar(BasePerfil):
 
         self.request.session['carrinho'] = self.carrinho    
         self.request.session.save()
-        return self.renderizar
+
+        return redirect('perfil:criar')

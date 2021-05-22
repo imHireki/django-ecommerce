@@ -75,6 +75,5 @@ class UserForm(forms.ModelForm):
                 validation_msgs['password'] = 'Senhas precisam ser iguais'
                 validation_msgs['password2'] = 'Senhas precisam ser iguais'
 
-            
         raise forms.ValidationError(validation_msgs)
         

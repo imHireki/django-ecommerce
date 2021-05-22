@@ -1,8 +1,10 @@
 {% for message in messages %}
 <br>
-<div class="col">
-	<div class="alert {{ message.tags }}" role="alert">
-		{{ message }}
+<div class="row">
+	<div class="col-lg">
+		<div class="alert {{ message.tags }}" role="alert">
+			{{ message }}
+		</div>
 	</div>
 </div>
 {% endfor %}
