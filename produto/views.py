@@ -135,6 +135,10 @@ class RemoverDoCarrinho(View):
 class ResumoDaCompra(View):
     def get(self, *args, **kwargs):
         if not self.request.user.is_authenticated:
+            messages.error(
+                self.request,
+                'Cadastro ou Login necessários para comprar'
+            )
             return redirect('perfil:criar')
         
         perfil = Perfil.objects.filter(

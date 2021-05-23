@@ -3,12 +3,29 @@ from django.views.generic import View
 from . import forms
 from .models import Perfil
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from copy import deepcopy
 from django.contrib import messages
 
 
+class Logout(View):
+    def get(self, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            messages.error(
+                self.request, 
+                'Usuário precisa estar logado para fazer logout'
+            )
+            return redirect('perfil:criar')
+        
+        carrinho = deepcopy(
+            self.request.session.get('carrinho'), {}
+        )
 
+        logout(self.request)
+        self.request.session['carrinho'] = carrinho
+
+        return redirect('produto:lista')
+        
 class Login(View):
     def post(self, *args, **kwargs):
         username = self.request.POST.get('username')
