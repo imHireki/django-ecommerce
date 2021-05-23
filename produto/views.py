@@ -134,12 +134,24 @@ class RemoverDoCarrinho(View):
 
 class ResumoDaCompra(View):
     def get(self, *args, **kwargs):
-        template_name = 'produto/resumo.html'
+        if not self.request.user.is_authenticated:
+            return redirect('perfil:criar')
+        
+        perfil = Perfil.objects.filter(
+            usuario=self.request.user
+        ).exists()
+        
+        if not perfil:
+            return redirect('perfil:criar')
 
+        if not self.request.session.get('carrinho'):
+            return redirect('produto:lista')
+        
+        template_name = 'produto/resumo.html'
+        
         contexto = {
             'usuario': self.request.user,
             'carrinho': self.request.session.get('carrinho')
         }
         
         return render(self.request, template_name, contexto)
-

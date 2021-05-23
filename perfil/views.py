@@ -8,6 +8,42 @@ from copy import deepcopy
 from django.contrib import messages
 
 
+
+class Login(View):
+    def post(self, *args, **kwargs):
+        username = self.request.POST.get('username')
+        password = self.request.POST.get('password')
+
+        if not username or not password:
+            messages.warning(
+                self.request,
+                'Usuário ou senha inválidos'
+
+            )
+            return redirect('perfil:criar')
+        
+        login_user = authenticate(
+            self.request,
+            username=username,
+            password=password
+        )
+
+        if not login_user:
+            messages.warning(
+                self.request,
+                'Usuário ou senha Inválidos'
+            )
+        
+        if login_user:
+            login(
+                self.request,
+                login_user
+            )
+
+        return redirect('perfil:criar')
+
+    
+
 class BasePerfil(View):
     template_name = 'perfil/atualizar.html'
 
