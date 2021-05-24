@@ -1,6 +1,12 @@
+def get_qtd_total(carrinho):
+    qtd_total = sum([
+        item['quantidade']
+        for item in carrinho.values()
+    ])
+    return qtd_total
+
 def formata_preco(val=float) -> float:
     return f'R$ {val:.2f}'.replace('.', ',')
-
 
 def get_total(carrinho) -> str:
     total = sum([
