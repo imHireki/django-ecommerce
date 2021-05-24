@@ -1,10 +1,15 @@
 from .models import Pedido, ItemPedido
 from produto.models import Variacao
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
+from django.urls import reverse
 from django.views.generic import View
 from django.contrib import messages
 from utils import utils
-import pprint
+
+
+class Pagar(View):
+    def get(self, *args, **kwargs):
+        return HttpResponse('hm')
 
 
 class SalvarPedido(View):
@@ -43,7 +48,9 @@ class SalvarPedido(View):
                     'Quantidade reduzida, verifique e continue a compra.'
                 )
                 self.request.session.save()
-                return redirect('produto:carrinho')
+                return redirect(
+                    reverse()
+                )
         
         qtd_total = utils.get_qtd_total(carrinho)
         preco_total = utils.get_total(carrinho)
@@ -73,4 +80,13 @@ class SalvarPedido(View):
             ]
         )
 
-        return redirect('produto:lista')
+        del self.request.session['carrinho']
+        self.request.session.save()
+
+
+        return redirect(
+            reverse(
+                'pedido:pagar',
+                kwargs={'pk':pedido_id}
+            )
+        )

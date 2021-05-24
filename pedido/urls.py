@@ -5,5 +5,6 @@ from . import views
 app_name = 'pedido'
 
 urlpatterns = [
+    path('pagar/<int:pk>', views.Pagar.as_view(), name='pagar'),
     path('salvarpedido/', views.SalvarPedido.as_view(), name='salvarpedido')
 ]
