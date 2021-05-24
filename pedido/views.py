@@ -1,4 +1,5 @@
 from .models import Pedido, ItemPedido
+from produto.models import Variacao
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.contrib import messages
@@ -16,7 +17,33 @@ class SalvarPedido(View):
             )
             return redirect('produto:lista')
 
-        # checkar estoque
+        variations = [v for v in carrinho]
+        bd_variations = Variacao.objects.filter(
+            id__in=variations
+        )
+
+        for bd_v in bd_variations:
+
+            vid = str(bd_v.id)
+            estoque = bd_v.estoque
+            quantidade = carrinho[vid]['quantidade']
+
+            if estoque < quantidade:
+                carrinho[vid]['quantidade'] = estoque
+                
+                unitario = carrinho[vid]['preco_unitario']
+                uni_promo = carrinho[vid]['preco_unitario_promocional']
+
+                carrinho[vid]['preco_quantitativo'] = estoque * unitario
+                carrinho[vid]['preco_quantitativo_promocional'] = estoque * uni_promo
+
+                messages.warning(
+                    self.request,
+                    'Estoque insuficiente para alguns produtos do carrinho '\
+                    'Quantidade reduzida, verifique e continue a compra.'
+                )
+                self.request.session.save()
+                return redirect('produto:carrinho')
         
         qtd_total = utils.get_qtd_total(carrinho)
         preco_total = utils.get_total(carrinho)
