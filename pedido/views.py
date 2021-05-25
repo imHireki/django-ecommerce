@@ -2,7 +2,7 @@ from .models import Pedido, ItemPedido
 from produto.models import Variacao
 from django.shortcuts import render, redirect, HttpResponse
 from django.urls import reverse
-from django.views.generic import View, ListView
+from django.views.generic import View, ListView, DetailView
 from django.contrib import messages
 from utils import utils
 
@@ -11,6 +11,13 @@ class Lista(ListView):
     model = Pedido
     context_object_name = 'pedidos'
     template_name = 'pedido/lista.html'
+
+
+class Detalhe(DetailView):
+    model = Pedido
+    context_object_name = 'pedido'
+    template_name = 'pedido/detalhe.html'
+    pk_url_kwarg = 'pk'
 
 
 class Pagar(View):
