@@ -14,6 +14,13 @@ class Pagar(View):
 
 class SalvarPedido(View):
     def get(self, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            messages.error(
+                self.request,
+                'É necessário estar logado para comprar'
+            )
+            return redirect('produto:lista')
+        
         carrinho = self.request.session.get('carrinho')
         if not carrinho:
             messages.error(
