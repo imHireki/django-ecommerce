@@ -1,8 +1,8 @@
 from .models import Pedido, ItemPedido
 from produto.models import Variacao
-from django.shortcuts import render, redirect, HttpResponse
-from django.urls import reverse
 from django.views.generic import View, ListView, DetailView
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib import messages
 from utils import utils
 
@@ -20,14 +20,16 @@ class Detalhe(DetailView):
     pk_url_kwarg = 'pk'
 
 
-class Pagar(View):
-    def get(self, *args, **kwargs):
-        return HttpResponse('hm')
-
+class Pagar(DetailView):
+    model = Pedido
+    context_object_name = 'pedido'
+    template_name = 'pedido/pagar.html'
+    pk_url_kwarg = 'pk'
+    
 
 class SalvarPedido(View):
     def get(self, *args, **kwargs):
-        if self.request.user.is_authenticated:
+        if not self.request.user.is_authenticated:
             messages.error(
                 self.request,
                 'É necessário estar logado para comprar'
