@@ -7,20 +7,37 @@ from django.contrib import messages
 from utils import utils
 
 
-class Lista(ListView):
+class LoginRequiredMixin(View):
+    
+    def dispatch(self, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            messages.error(
+                self.request,
+                'É necessário fazer o login'
+            )
+            return redirect('perfil:criar')
+            
+        return super().dispatch(*args, **kwargs)
+    
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            usuario=self.request.user
+        )
+    
+class Lista(LoginRequiredMixin, ListView):
     model = Pedido
     context_object_name = 'pedidos'
     template_name = 'pedido/lista.html'
 
 
-class Detalhe(DetailView):
+class Detalhe(LoginRequiredMixin, DetailView):
     model = Pedido
     context_object_name = 'pedido'
     template_name = 'pedido/detalhe.html'
     pk_url_kwarg = 'pk'
 
 
-class Pagar(DetailView):
+class Pagar(LoginRequiredMixin, DetailView):
     model = Pedido
     context_object_name = 'pedido'
     template_name = 'pedido/pagar.html'
