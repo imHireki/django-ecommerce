@@ -12,7 +12,8 @@ class ListaProdutos(ListView):
     model = models.Produto
     context_object_name = 'produtos'
     template_name = 'produto/lista.html'
-    paginate_by = 1
+    paginate_by = 6
+    ordering = ['-id']
 
 
 class Detalhe(DetailView):
