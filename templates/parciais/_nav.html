@@ -41,7 +41,13 @@
             Carrinho
           </span>
           <span class="nav-cart-count mr-1">
-            <strong>{{request.session.carrinho|get_qtd_total}}x</strong>
+            <strong>
+            {% if request.session.carrinho %}
+            {{request.session.carrinho|get_qtd_total}}x
+            {% else %}
+            0x
+            {% endif %}
+            </strong>
           </span>
           <span class="nav-cart-icon mr-2">
             <i class="fas fa-shopping-cart"></i>
