@@ -8,6 +8,8 @@ from . import models
 from django.contrib import messages
 from perfil.models import Perfil
 from django.db.models import Q
+import requests
+
 
 class ListaProdutos(ListView):
     model = models.Produto
@@ -125,11 +127,20 @@ class AdicionarAoCarrinho(View):
             
         return redirect(http_referer)
 
+
+
 class Carrinho(View):
     template_name = 'produto/carrinho.html'
 
     def get(self, *args, **kwargs):
         carrinho = self.request.session.get('carrinho', {})
+        
+        # TODO: rest
+        # a = requests.get(
+        #     'http://127.0.0.1:8000/api/users/',
+        # ).json()
+        # print(a)
+        # import requests
         
         contexto = {
             'carrinho': carrinho
